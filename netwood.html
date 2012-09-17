@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+<script>
+
+var layers = {}, onmsg = {};
+
+onmsg.load_image = function(opt,send){
+    var layer = layers[opt.layer] = {};
+    var image = layer.el = new Image();
+    image.onload = function(){
+        //console.log('loaded',opt.src);
+        send({ op:'loaded', layer:opt.layer }) 
+    };
+    image.src = opt.src;
+};
+onmsg.create_canvas = function(opt,send){
+    var layer = layers[opt.layer] = {};
+    var canvas = layer.el = document.createElement('canvas');
+    document.body.appendChild(canvas);
+    canvas.style.position = 'absolute';
+    canvas.setAttribute('width', layer.width = opt.width);
+    canvas.setAttribute('height', layer.height = opt.height);
+    layer.ctx = canvas.getContext("2d");
+};
+onmsg.subscribe_event = function(opt,send){  //keydown keyup
+    addEventListener(opt.tp,function(ev){
+        send({ op:opt.tp, code: ev.keyCode });
+    });
+};
+
+onmsg.clear = function(opt,send){
+    var layer = layers[opt.layer];
+    layer.ctx.clearRect(0,0,layer.width,layer.height);
+};
+onmsg.draw_image = function(opt,send){
+    var src = opt.source;
+    layers[opt.layer].ctx.drawImage( layers[src.layer].el, 
+        src.x,  src.y,  src.width, src.height,
+        opt.x,  opt.y,  src.width, src.height
+    );
+};
+
+window.onload = function(){
+    var sock = new SockJS('/sock');
+    function send(msg){ sock.send( JSON.stringify(msg) ) };
+    sock.onmessage = function(e){ 
+        //console.log(e);
+        var l = JSON.parse(e.data).list; 
+        for(var j=0;j<l.length;j++) onmsg[l[j].op](l[j],send);
+    };
+};
+
+</script></head><body></body></html>
