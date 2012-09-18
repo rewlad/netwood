@@ -93,9 +93,7 @@ function init_images(me,cmd_list){
     me.image_count = 0;
     function reg_seen_image(nm){
         me.image_count++;
-        var src = "http://deepthought.ttu.ee"+
-            "/infoinst/conference/courswre/games/html5/seenel/images/"+nm+".png";
-        cmd_list.push({ op:'load_image', layer:nm, src:src });
+        cmd_list.push({ op:'load_image', layer:nm, src:"/"+nm+".png" });
     }
     reg_seen_image('trees');
     reg_seen_image('hero_ani');
@@ -222,8 +220,15 @@ var http = require('http');
 var sockjs = require('sockjs');
 var fs = require("fs");
 
+var allow_dl = {'/netwood.html':1,'/trees.png':1,'/hero_ani.png':1};
+
 var server = http.createServer(function(req,res){
-    fs.readFile('./netwood.html',"binary",function(err,file){
+    if(!allow_dl[req.url]){
+        res.writeHead(500);
+        res.end();
+        return;
+    }
+    fs.readFile('.'+req.url,"binary",function(err,file){
         if(err){
             res.writeHead(500);
         }else{
