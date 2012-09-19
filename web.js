@@ -263,6 +263,7 @@ sockjs_server.on('connection', function(conn) {
 
 
 sockjs_server.installHandlers(server, {prefix:'/sock'});
+console.log(11);
 server.listen(process.env.PORT||9999, '0.0.0.0');
-
+console.log([22,process.env.PORT]);
 
