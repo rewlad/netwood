@@ -229,6 +229,7 @@ var fs = require("fs");
 var allow_dl = {'/netwood.html':1,'/trees.png':1,'/hero_ani.png':1};
 
 var server = http.createServer(function(req,res){
+    console.log('conn0');
     if(!allow_dl[req.url]){
         res.writeHead(500);
         res.end();
@@ -251,6 +252,7 @@ var game = {};
 game_init(game);
 
 sockjs_server.on('connection', function(conn) {
+    console.log('conn1');
     var oconn = uobj({ onmsg:{}, game:game });
     oconn.send = function(msg){ conn.write(msg) };
     conn.on('data', function(message){
@@ -265,5 +267,5 @@ sockjs_server.on('connection', function(conn) {
 sockjs_server.installHandlers(server, {prefix:'/sock'});
 console.log(11);
 server.listen(process.env.PORT||9999, '0.0.0.0');
-console.log([22,process.env.PORT]);
+console.log([23,process.env.PORT]);
 
