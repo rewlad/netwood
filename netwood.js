@@ -194,6 +194,12 @@ function init_conn(me,game){
         last_time = cur_time;
     }
     
+    me.close = function(){
+        game.frame_receiver_reg.unreg(me);
+        game.moving_reg.unreg(hero);
+        hero.intersecting_unreg()
+    };
+    
     me.onmsg.loaded = function(opt){
         if((--images_left)>0) return;
         me.send(game.wood_msg_str);
@@ -252,7 +258,7 @@ sockjs_server.on('connection', function(conn) {
         oconn.onmsg[msg.op](msg);
     });
     init_conn(oconn,game);
-    //conn.on('close', function(){});
+    conn.on('close', function(){ oconn.close() });
 });
 
 
